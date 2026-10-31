@@ -111,6 +111,11 @@
       var prompt = params.get('prompt') || '';
       // mode=login: masuk/daftar dengan akun Google (ID token). Tanpa mode: izin Google Drive (access token).
       var isLogin = params.get('mode') === 'login';
+      // flow=code: izin Drive sekali per perangkat (kode ditukar server jadi kunci jangka panjang).
+      // Tanpa flow: versi lama aplikasi yang masih minta token 1 jam.
+      var useCode = params.get('flow') === 'code';
+      // Email akun FINTATIF: Google langsung menawarkan akun ini, dan server menolak akun Google lain.
+      var hint = (params.get('hint') || '').trim().toLowerCase();
       var btn = document.getElementById('go'), msgEl = document.getElementById('msg');
 
       function msg(text, cls) { msgEl.textContent = text; msgEl.className = cls || ''; }
@@ -134,6 +139,8 @@
         document.getElementById('ico-drive').innerHTML = document.querySelector('#go svg').outerHTML;
         btn.hidden = true;
         document.getElementById('gsiBtn').hidden = false;
+      } else if (useCode && hint) {
+        document.getElementById('sub').textContent = 'Pilih akun Google ' + hint + ', sama dengan email akun FINTATIF-mu. Cukup sekali di perangkat ini.';
       }
 
       var s = document.createElement('script');
@@ -161,6 +168,29 @@
 
       btn.addEventListener('click', function () {
         btn.disabled = true; msg('Membuka login Google...');
+        if (useCode) {
+          google.accounts.oauth2.initCodeClient({
+            client_id: CLIENT_ID,
+            scope: 'openid email ' + SCOPE,
+            hint: hint || undefined,
+            ux_mode: 'popup',
+            callback: function (r) {
+              if (r && r.code) {
+                send({ code: r.code });
+                msg('Tersambung. Jendela ini akan tertutup.', 'ok');
+                setTimeout(function () { window.close(); }, 700);
+              } else {
+                send({ error: 'denied' });
+                btn.disabled = false; msg('Izin Google tidak diberikan.', 'err');
+              }
+            },
+            error_callback: function (e) {
+              btn.disabled = false;
+              msg(e && e.type === 'popup_closed' ? 'Jendela login ditutup. Coba lagi.' : 'Login Google gagal. Coba lagi.', 'err');
+            }
+          }).requestCode();
+          return;
+        }
         var client = google.accounts.oauth2.initTokenClient({
           client_id: CLIENT_ID,
           scope: SCOPE,

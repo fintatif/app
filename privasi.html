@@ -33,18 +33,16 @@
   <p>Untuk mendaftar dan masuk, kami menyimpan nama, alamat email, status akun, tanggal daftar, dan nominal transfer pembayaran di database FINTATIF. Data ini hanya dipakai untuk memverifikasi pembayaran, mengaktifkan akun, dan mengirim email terkait akunmu.</p>
   <p>Password tidak kami simpan apa adanya. Yang tersimpan hanya hasil acakan satu arah (hash) yang diberi kode unik per akun, sehingga password-mu tidak bisa dibaca siapa pun, termasuk FINTATIF. Kode 6 angka untuk membuat atau mengganti password dikirim ke emailmu dan hanya berlaku 10 menit.</p>
 
-  <h2>Masuk atau daftar dengan Google</h2>
-  <p>Kalau kamu memilih tombol Google, kami hanya menerima nama dan alamat email dari akun Google-mu untuk mencocokkan akun FINTATIF. Kami tidak menerima password Google-mu dan tidak menyimpan data Google lainnya.</p>
-
   <h2>Catatan keuanganmu</h2>
   <p>Transaksi, saldo, kategori, utang piutang, tagihan, target tabungan, dan data proteksi tersimpan di browser perangkat yang kamu pakai. Catatan ini tidak dikirim ke server FINTATIF.</p>
   <p>Kamu bisa mengunduh salinannya kapan saja sebagai file cadangan <code>.fintatif</code>, atau menyimpannya ke Google Drive milikmu sendiri seperti dijelaskan di bawah.</p>
 
   <h2>Fitur Simpan ke Google Drive</h2>
-  <p>Fitur ini opsional. Kalau kamu menekan <b>Hubungkan Google</b>, aplikasi meminta satu izin Google, yaitu <code>drive.file</code>. Dengan izin ini aplikasi hanya bisa membuat dan mengubah file yang dibuatnya sendiri, yaitu Google Sheet "FINTATIF Smart Wealth - Data Saya" di Drive milikmu. Aplikasi tidak bisa membuka file lain di Drive-mu.</p>
+  <p>Fitur ini opsional. Kalau kamu menekan <b>Hubungkan Google</b>, aplikasi meminta izin Google Drive <code>drive.file</code> dan alamat email akun Google-mu. Email itu hanya dipakai untuk memastikan akun Google yang kamu hubungkan sama dengan email akun FINTATIF-mu. Dengan izin <code>drive.file</code> aplikasi hanya bisa membuat dan mengubah file yang dibuatnya sendiri, yaitu Google Sheet "FINTATIF Smart Wealth - Data Saya" di Drive milikmu. Aplikasi tidak bisa membuka file lain di Drive-mu.</p>
   <ul>
-    <li>Data dikirim langsung dari browsermu ke Google. Data tidak melewati server FINTATIF, jadi FINTATIF tidak bisa membuka atau melihat isinya.</li>
-    <li>Tanda akses (token) Google hanya disimpan sementara di memori browsermu, tidak disimpan permanen, dan tidak dikirim ke FINTATIF.</li>
+    <li>Data dikirim langsung dari browsermu ke Google. Isi catatanmu tidak melewati server FINTATIF.</li>
+    <li>Supaya kamu cukup memberi izin sekali di tiap perangkat, kunci izin Google disimpan di browsermu sendiri. Kira-kira sekali sejam, kunci itu dikirim ke server FINTATIF hanya untuk ditukar dengan izin baru dari Google (penukaran ini wajib lewat server). Server tidak menyimpan kunci maupun izin tersebut.</li>
+    <li>Tombol <b>Putuskan</b> mencabut kunci itu dan menghapusnya dari perangkatmu. Kamu juga bisa mencabutnya kapan saja di <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.</li>
     <li>Kami tidak menjual, membagikan, atau memakai data dari Google untuk iklan, dan tidak memakainya untuk melatih model kecerdasan buatan.</li>
     <li>File di Google Drive tetap milikmu. Kamu bisa menghapusnya kapan saja.</li>
   </ul>
