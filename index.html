@@ -37,6 +37,60 @@
       border: none;
     }
   </style>
+
+  <script>
+    // Izin Google Drive untuk simpan otomatis, seluruhnya di perangkat member (tidak lewat server).
+    // Google memberi izin 1 jam. Halaman ini memperpanjangnya sendiri tanpa ketukan: saat aplikasi dibuka
+    // dan saat aplikasi sedang tidak dilihat, halaman diarahkan sebentar ke Google (prompt=none) lalu kembali.
+    // Izin hanya diteruskan ke aplikasi FINTATIF Smart Wealth (APP_ORIGIN).
+    (function () {
+      'use strict';
+      var APP_ORIGIN = 'https://n-pniqculxqumsxzxy5lxyjukrqvkwztfracnnyhi-0lu-script.googleusercontent.com';
+      var CLIENT_ID = '304891749309-caju51666hma60mo014mh9aeaj4cs6no.apps.googleusercontent.com';
+      var SCOPE = 'openid email https://www.googleapis.com/auth/drive.file';
+      var KEY = 'fintatif_wrap_gdrive_v1';   // { email, t: token, x: berlaku sampai, failAt }
+      var RETRY_AFTER_FAIL = 6 * 3600 * 1000;
+      var st = {};
+      try { st = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { st = {}; }
+      function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { /* abaikan */ } }
+      function valid() { return !!st.t && Date.now() < (Number(st.x) || 0) - 120000; }
+      function canRenew() { return !!st.email && !valid() && navigator.onLine !== false && !(st.failAt && Date.now() - st.failAt < RETRY_AFTER_FAIL); }
+      function renew() {
+        var state = Math.random().toString(36).slice(2) + Date.now().toString(36);
+        try { sessionStorage.setItem('ftw_state', state); } catch (e) { return; }
+        var q = { client_id: CLIENT_ID, redirect_uri: location.origin + '/app/', response_type: 'token', scope: SCOPE,
+          include_granted_scopes: 'true', prompt: 'none', login_hint: st.email, state: state };
+        location.replace('https://accounts.google.com/o/oauth2/v2/auth?' + Object.keys(q).map(function (k) { return k + '=' + encodeURIComponent(q[k]); }).join('&'));
+      }
+
+      // Kembali dari Google: simpan izinnya, bersihkan alamat.
+      if (/[#&](access_token|error)=/.test(location.hash)) {
+        var h = new URLSearchParams(location.hash.slice(1)), want = '';
+        try { want = sessionStorage.getItem('ftw_state') || ''; sessionStorage.removeItem('ftw_state'); } catch (e) { /* abaikan */ }
+        if (want && h.get('state') === want) {
+          if (h.get('access_token')) { st.t = h.get('access_token'); st.x = Date.now() + (Number(h.get('expires_in')) || 3600) * 1000; st.failAt = 0; }
+          else { st.t = ''; st.failAt = Date.now(); }
+          save();
+        }
+        history.replaceState(null, '', location.pathname + location.search);
+      } else if (canRenew()) {
+        renew();
+        return;
+      }
+
+      // Saat aplikasi sedang tidak dilihat dan izinnya sudah habis, perpanjang diam-diam.
+      document.addEventListener('visibilitychange', function () { if (document.hidden && canRenew()) renew(); });
+
+      window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (e.origin !== APP_ORIGIN || !d || typeof d.type !== 'string' || d.type.indexOf('ftw-') !== 0) return;
+        if (d.type === 'ftw-link' && d.email && d.t) { st = { email: String(d.email).toLowerCase(), t: d.t, x: Number(d.x) || 0, failAt: 0 }; save(); }
+        else if (d.type === 'ftw-unlink') { st = {}; save(); }
+        else if (d.type === 'ftw-hello' && d.email && st.email && st.email !== String(d.email).toLowerCase()) { st = {}; save(); }
+        if (e.source) e.source.postMessage({ type: 'ftw-token', email: st.email || '', t: valid() ? st.t : '', x: valid() ? st.x : 0, failed: !!st.failAt }, APP_ORIGIN);
+      });
+    })();
+  </script>
 </head>
 <body>
 
