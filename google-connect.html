@@ -7,6 +7,10 @@
   <link rel="icon" href="favicon.ico" sizes="48x48">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="theme-color" content="#0B1323">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
   <!--
     Jendela kecil untuk login Google. Dibuka oleh tombol "Hubungkan Google" di FINTATIF Smart Wealth.
     Token Google hanya dikirim ke jendela aplikasi yang membukanya (APP_ORIGIN), di browser yang sama.
@@ -14,29 +18,82 @@
   -->
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #0b1323; color: #0f172a; font: 15px/1.6 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
-    .card { width: min(420px, 100%); padding: 28px 24px; border-radius: 22px; background: #fff; text-align: center; box-shadow: 0 30px 60px -30px rgb(0 0 0 / 60%); }
-    .card img { width: 56px; height: 56px; }
-    h1 { margin: 14px 0 0; font-size: 20px; font-weight: 800; letter-spacing: -.01em; }
-    p { margin: 10px 0 0; color: #475569; font-size: 14px; }
-    .lock { margin-top: 14px; padding: 10px 12px; border-radius: 12px; background: #ecfdf5; color: #065f46; font-size: 13px; font-weight: 600; }
-    button { width: 100%; margin-top: 20px; min-height: 48px; border: 0; border-radius: 14px; background: #059669; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
-    button:hover { background: #047857; }
-    button[disabled] { opacity: .6; cursor: default; }
-    #msg { min-height: 22px; font-weight: 600; }
-    #msg.ok { color: #047857; }
-    #msg.err { color: #be123c; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 28px 18px;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      color: #e2e8f0; background: #0B1323; position: relative; overflow-x: hidden; isolation: isolate;
+    }
+    body::before {
+      content: ""; position: fixed; inset: 0; z-index: -1;
+      background: radial-gradient(520px 340px at 85% 8%, rgb(16 185 129 / 24%), transparent 65%),
+                  radial-gradient(460px 320px at 8% 96%, rgb(6 182 212 / 14%), transparent 65%);
+    }
+    body::after {
+      content: ""; position: fixed; inset: 0; z-index: -1;
+      background-image: linear-gradient(rgb(148 163 184 / 7%) 1px, transparent 1px), linear-gradient(90deg, rgb(148 163 184 / 7%) 1px, transparent 1px);
+      background-size: 48px 48px;
+      -webkit-mask-image: radial-gradient(ellipse at 50% 30%, #000 10%, transparent 72%); mask-image: radial-gradient(ellipse at 50% 30%, #000 10%, transparent 72%);
+    }
+    .wrap { width: min(400px, 100%); }
+    .brand { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 26px; }
+    .brand img { width: auto; height: 46px; display: block; }
+    .brand b { display: block; color: #fff; font-size: 22px; font-weight: 800; letter-spacing: .02em; line-height: 1; }
+    .brand small { display: block; margin-top: 5px; color: #34d399; font-size: 10.5px; font-weight: 800; letter-spacing: .28em; }
+    .card {
+      padding: 28px 24px 24px; border: 1px solid rgb(148 163 184 / 16%); border-radius: 24px;
+      background: linear-gradient(180deg, rgb(255 255 255 / 6%), rgb(255 255 255 / 3%));
+      box-shadow: 0 30px 60px -30px rgb(0 0 0 / 70%); text-align: center;
+    }
+    .drive { display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: 18px; background: rgb(16 185 129 / 12%); border: 1px solid rgb(52 211 153 / 25%); }
+    .drive svg { width: 28px; height: 28px; }
+    h1 { margin: 16px 0 0; color: #fff; font-size: 22px; font-weight: 800; letter-spacing: -.01em; line-height: 1.25; }
+    p { margin: 10px 0 0; color: #94a3b8; font-size: 14px; line-height: 1.65; }
+    .lock {
+      display: flex; gap: 10px; align-items: flex-start; margin: 18px 0 0; padding: 12px 14px; text-align: left;
+      border-radius: 14px; border: 1px solid rgb(52 211 153 / 22%); background: rgb(16 185 129 / 9%); color: #a7f3d0; font-size: 13px; font-weight: 600; line-height: 1.55;
+    }
+    .lock svg { flex: none; width: 17px; height: 17px; margin-top: 1px; color: #34d399; }
+    .gbtn {
+      display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; margin-top: 22px; min-height: 50px; padding: 0 18px;
+      border: 0; border-radius: 14px; background: #fff; color: #1f1f1f; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer;
+      transition: transform .15s, box-shadow .2s, opacity .2s; box-shadow: 0 10px 24px -12px rgb(0 0 0 / 60%);
+    }
+    .gbtn:hover { box-shadow: 0 0 0 4px rgb(52 211 153 / 22%), 0 10px 24px -12px rgb(0 0 0 / 60%); }
+    .gbtn:active { transform: scale(.98); }
+    .gbtn[disabled] { opacity: .55; cursor: default; box-shadow: none; }
+    .gbtn svg { width: 20px; height: 20px; flex: none; }
+    #msg { min-height: 22px; margin-top: 14px; font-weight: 600; font-size: 13.5px; color: #94a3b8; }
+    #msg.ok { color: #34d399; }
+    #msg.err { color: #fda4af; }
+    .foot { margin-top: 18px; text-align: center; color: #64748b; font-size: 12px; }
+    .foot a { color: #94a3b8; }
   </style>
 </head>
 <body>
-  <main class="card">
-    <img src="Favicon Fintatif.png" alt="FINTATIF">
-    <h1>Hubungkan Google Drive</h1>
-    <p>Pilih akun Google tempat salinan catatan FINTATIF Smart Wealth-mu akan disimpan.</p>
-    <p class="lock">FINTATIF tidak bisa membuka atau melihat isi datamu. Aplikasi hanya bisa mengakses file yang dibuatnya sendiri.</p>
-    <button id="go" type="button" disabled>Lanjutkan dengan Google</button>
-    <p id="msg"></p>
-  </main>
+  <div class="wrap">
+    <div class="brand">
+      <img src="data:image/png;base64,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" alt="">
+      <span><b>FINTATIF</b><small>SMART WEALTH</small></span>
+    </div>
+    <main class="card">
+      <span class="drive" aria-hidden="true">
+        <svg viewBox="0 0 87.3 78"><path fill="#0066da" d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0c0 1.55.4 3.1 1.2 4.5z"/><path fill="#00ac47" d="M43.65 25 29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3L1.2 48.5A9.06 9.06 0 0 0 0 53h27.5z"/><path fill="#ea4335" d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59.8l5.85 11.5z"/><path fill="#00832d" d="M43.65 25 57.4 1.2C56.05.4 54.5 0 52.9 0H34.4c-1.6 0-3.15.45-4.5 1.2z"/><path fill="#2684fc" d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z"/><path fill="#ffba00" d="M73.4 26.5 60.7 4.5c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25 59.8 53h27.45c0-1.55-.4-3.1-1.2-4.5z"/></svg>
+      </span>
+      <h1>Hubungkan Google Drive</h1>
+      <p>Pilih akun Google tempat salinan catatan FINTATIF Smart Wealth-mu akan disimpan.</p>
+      <div class="lock">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <span>Data tersimpan di Google Drive milikmu sendiri. FINTATIF tidak bisa membuka atau melihat isinya.</span>
+      </div>
+      <button id="go" class="gbtn" type="button" disabled>
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        <span>Lanjutkan dengan Google</span>
+      </button>
+      <p id="msg" role="status"></p>
+    </main>
+    <p class="foot"><a href="privasi.html" target="_blank" rel="noopener">Kebijakan Privasi</a></p>
+  </div>
 
   <script>
     (function () {
