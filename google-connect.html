@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hubungkan Google Drive · FINTATIF Smart Wealth</title>
+  <link rel="icon" type="image/png" href="Favicon Fintatif.png">
+  <!--
+    Jendela kecil untuk login Google. Dibuka oleh tombol "Hubungkan Google" di FINTATIF Smart Wealth.
+    Token Google hanya dikirim ke jendela aplikasi yang membukanya (APP_ORIGIN), di browser yang sama.
+    Halaman ini tidak punya server dan tidak menyimpan apa pun.
+  -->
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #0b1323; color: #0f172a; font: 15px/1.6 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+    .card { width: min(420px, 100%); padding: 28px 24px; border-radius: 22px; background: #fff; text-align: center; box-shadow: 0 30px 60px -30px rgb(0 0 0 / 60%); }
+    .card img { width: 56px; height: 56px; }
+    h1 { margin: 14px 0 0; font-size: 20px; font-weight: 800; letter-spacing: -.01em; }
+    p { margin: 10px 0 0; color: #475569; font-size: 14px; }
+    .lock { margin-top: 14px; padding: 10px 12px; border-radius: 12px; background: #ecfdf5; color: #065f46; font-size: 13px; font-weight: 600; }
+    button { width: 100%; margin-top: 20px; min-height: 48px; border: 0; border-radius: 14px; background: #059669; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+    button:hover { background: #047857; }
+    button[disabled] { opacity: .6; cursor: default; }
+    #msg { min-height: 22px; font-weight: 600; }
+    #msg.ok { color: #047857; }
+    #msg.err { color: #be123c; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <img src="Favicon Fintatif.png" alt="FINTATIF">
+    <h1>Hubungkan Google Drive</h1>
+    <p>Pilih akun Google tempat salinan catatan FINTATIF Smart Wealth-mu akan disimpan.</p>
+    <p class="lock">FINTATIF tidak bisa membuka atau melihat isi datamu. Aplikasi hanya bisa mengakses file yang dibuatnya sendiri.</p>
+    <button id="go" type="button" disabled>Lanjutkan dengan Google</button>
+    <p id="msg"></p>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+      var CLIENT_ID = '304891749309-caju51666hma60mo014mh9aeaj4cs6no.apps.googleusercontent.com';
+      var SCOPE = 'https://www.googleapis.com/auth/drive.file';
+      // Hanya jendela Apps Script FINTATIF Smart Wealth yang boleh menerima token.
+      var APP_ORIGIN = 'https://n-pniqculxqumsxzxy5lxyjukrqvkwztfracnnyhi-0lu-script.googleusercontent.com';
+
+      var params = new URLSearchParams(location.search);
+      var state = params.get('state') || '';
+      var prompt = params.get('prompt') || '';
+      var btn = document.getElementById('go'), msgEl = document.getElementById('msg');
+
+      function msg(text, cls) { msgEl.textContent = text; msgEl.className = cls || ''; }
+      function send(data) {
+        if (!window.opener) return false;
+        data.type = 'fintatif-gdrive'; data.state = state;
+        window.opener.postMessage(data, APP_ORIGIN);
+        return true;
+      }
+
+      if (!window.opener || !state) {
+        msg('Buka halaman ini dari tombol "Hubungkan Google" di FINTATIF Smart Wealth.', 'err');
+        return;
+      }
+
+      var s = document.createElement('script');
+      s.src = 'https://accounts.google.com/gsi/client'; s.async = true;
+      s.onload = function () { btn.disabled = false; };
+      s.onerror = function () { msg('Layanan login Google gagal dimuat. Periksa koneksi lalu muat ulang.', 'err'); };
+      document.head.appendChild(s);
+
+      btn.addEventListener('click', function () {
+        btn.disabled = true; msg('Membuka login Google...');
+        var client = google.accounts.oauth2.initTokenClient({
+          client_id: CLIENT_ID,
+          scope: SCOPE,
+          callback: function (r) {
+            if (r && r.access_token) {
+              send({ access_token: r.access_token, expires_in: r.expires_in });
+              msg('Tersambung. Jendela ini akan tertutup.', 'ok');
+              setTimeout(function () { window.close(); }, 700);
+            } else {
+              send({ error: 'denied' });
+              btn.disabled = false; msg('Izin Google tidak diberikan.', 'err');
+            }
+          },
+          error_callback: function (e) {
+            btn.disabled = false;
+            msg(e && e.type === 'popup_closed' ? 'Jendela login ditutup. Coba lagi.' : 'Login Google gagal. Coba lagi.', 'err');
+          }
+        });
+        client.requestAccessToken({ prompt: prompt });
+      });
+    })();
+  </script>
+</body>
+</html>
