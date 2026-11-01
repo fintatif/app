@@ -49,7 +49,8 @@
       var CLIENT_ID = '304891749309-caju51666hma60mo014mh9aeaj4cs6no.apps.googleusercontent.com';
       var SCOPE = 'openid email https://www.googleapis.com/auth/drive.file';
       var KEY = 'fintatif_wrap_gdrive_v1';   // { email: akun FINTATIF, g: akun Google backup, t: token, x: berlaku sampai, failAt }
-      var RETRY_AFTER_FAIL = 6 * 3600 * 1000;
+      // Kalau Google sempat menolak perpanjangan diam-diam, coba lagi 10 menit kemudian (tanpa pengingat ke pengguna).
+      var RETRY_AFTER_FAIL = 10 * 60000;
       var st = {};
       try { st = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { st = {}; }
       function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { /* abaikan */ } }
