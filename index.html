@@ -48,7 +48,7 @@
       var APP_ORIGIN = 'https://n-pniqculxqumsxzxy5lxyjukrqvkwztfracnnyhi-0lu-script.googleusercontent.com';
       var CLIENT_ID = '304891749309-caju51666hma60mo014mh9aeaj4cs6no.apps.googleusercontent.com';
       var SCOPE = 'openid email https://www.googleapis.com/auth/drive.file';
-      var KEY = 'fintatif_wrap_gdrive_v1';   // { email, t: token, x: berlaku sampai, failAt }
+      var KEY = 'fintatif_wrap_gdrive_v1';   // { email: akun FINTATIF, g: akun Google backup, t: token, x: berlaku sampai, failAt }
       var RETRY_AFTER_FAIL = 6 * 3600 * 1000;
       var st = {};
       try { st = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { st = {}; }
@@ -59,7 +59,7 @@
         var state = Math.random().toString(36).slice(2) + Date.now().toString(36);
         try { sessionStorage.setItem('ftw_state', state); } catch (e) { return; }
         var q = { client_id: CLIENT_ID, redirect_uri: location.origin + '/app/', response_type: 'token', scope: SCOPE,
-          include_granted_scopes: 'true', prompt: 'none', login_hint: st.email, state: state };
+          include_granted_scopes: 'true', prompt: 'none', login_hint: st.g || st.email, state: state };
         location.replace('https://accounts.google.com/o/oauth2/v2/auth?' + Object.keys(q).map(function (k) { return k + '=' + encodeURIComponent(q[k]); }).join('&'));
       }
 
@@ -84,7 +84,7 @@
       window.addEventListener('message', function (e) {
         var d = e.data;
         if (e.origin !== APP_ORIGIN || !d || typeof d.type !== 'string' || d.type.indexOf('ftw-') !== 0) return;
-        if (d.type === 'ftw-link' && d.email && d.t) { st = { email: String(d.email).toLowerCase(), t: d.t, x: Number(d.x) || 0, failAt: 0 }; save(); }
+        if (d.type === 'ftw-link' && d.email && d.t) { st = { email: String(d.email).toLowerCase(), g: String(d.g || d.email).toLowerCase(), t: d.t, x: Number(d.x) || 0, failAt: 0 }; save(); }
         else if (d.type === 'ftw-unlink') { st = {}; save(); }
         else if (d.type === 'ftw-hello' && d.email && st.email && st.email !== String(d.email).toLowerCase()) { st = {}; save(); }
         if (e.source) e.source.postMessage({ type: 'ftw-token', email: st.email || '', t: valid() ? st.t : '', x: valid() ? st.x : 0, failed: !!st.failAt }, APP_ORIGIN);
