@@ -53,8 +53,12 @@
       var st = {};
       try { st = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { st = {}; }
       function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { /* abaikan */ } }
+      var EARLY = 25 * 60000;   // perpanjang lebih awal kalau sisa izin kurang dari 25 menit
       function valid() { return !!st.t && Date.now() < (Number(st.x) || 0) - 120000; }
-      function canRenew() { return !!st.email && !valid() && navigator.onLine !== false && !(st.failAt && Date.now() - st.failAt < RETRY_AFTER_FAIL); }
+      function fresh() { return !!st.t && Date.now() < (Number(st.x) || 0) - EARLY; }
+      // early = saat aplikasi dibuka atau tidak dilihat: sekalian perpanjang izin yang hampir habis,
+      // supaya izin tidak habis di tengah pemakaian.
+      function canRenew(early) { return !!st.email && !(early ? fresh() : valid()) && navigator.onLine !== false && !(st.failAt && Date.now() - st.failAt < RETRY_AFTER_FAIL); }
       function renew() {
         var state = Math.random().toString(36).slice(2) + Date.now().toString(36);
         try { sessionStorage.setItem('ftw_state', state); } catch (e) { return; }
@@ -73,13 +77,13 @@
           save();
         }
         history.replaceState(null, '', location.pathname + location.search);
-      } else if (canRenew()) {
+      } else if (canRenew(true)) {
         renew();
         return;
       }
 
-      // Saat aplikasi sedang tidak dilihat dan izinnya sudah habis, perpanjang diam-diam.
-      document.addEventListener('visibilitychange', function () { if (document.hidden && canRenew()) renew(); });
+      // Saat aplikasi sedang tidak dilihat dan izinnya habis atau hampir habis, perpanjang diam-diam.
+      document.addEventListener('visibilitychange', function () { if (document.hidden && canRenew(true)) renew(); });
 
       window.addEventListener('message', function (e) {
         var d = e.data;
@@ -87,6 +91,8 @@
         if (d.type === 'ftw-link' && d.email && d.t) { st = { email: String(d.email).toLowerCase(), g: String(d.g || d.email).toLowerCase(), t: d.t, x: Number(d.x) || 0, failAt: 0 }; save(); }
         else if (d.type === 'ftw-unlink') { st = {}; save(); }
         else if (d.type === 'ftw-hello' && d.email && st.email && st.email !== String(d.email).toLowerCase()) { st = {}; save(); }
+        // Aplikasi sedang dibuka, izinnya habis, dan pengguna sedang diam: perpanjang sekarang (muat ulang sebentar).
+        else if (d.type === 'ftw-renew' && d.email && st.email === String(d.email).toLowerCase() && canRenew(false)) { renew(); return; }
         if (e.source) e.source.postMessage({ type: 'ftw-token', email: st.email || '', t: valid() ? st.t : '', x: valid() ? st.x : 0, failed: !!st.failAt }, APP_ORIGIN);
       });
     })();
