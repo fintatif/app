@@ -36,6 +36,9 @@
       height: 100%;
       border: none;
     }
+
+    /* Penjelasan aplikasi untuk mesin pembaca (Google); tertutup iframe, tidak mengubah tampilan */
+    .fw-about { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: normal; border: 0; }
   </style>
 
   <script>
@@ -101,6 +104,21 @@
   </script>
 </head>
 <body>
+
+  <main class="fw-about">
+    <h1>FINTATIF Smart Wealth</h1>
+    <p>FINTATIF Smart Wealth adalah aplikasi pencatatan keuangan pribadi yang dibuka lewat browser. Pengguna mencatat pemasukan, pengeluaran, dan pindah uang antar rekening, lalu membaca kondisi keuangannya dari dashboard.</p>
+    <ul>
+      <li>Dashboard: arus kas, status anggaran, dan kalender arus kas per periode.</li>
+      <li>Insight Bulanan: rangkuman bulan berjalan, dibandingkan dengan bulan sebelumnya.</li>
+      <li>Aset dan rekening: saldo tiap rekening dan jenis aset yang dibuat sendiri.</li>
+      <li>Kategori dan anggaran: batas belanja per kategori, dengan peringatan saat mencatat.</li>
+      <li>Tagihan rutin, utang dan piutang, target tabungan, dan proteksi asuransi.</li>
+      <li>Laporan yang bisa diunduh sebagai PDF dan Excel.</li>
+    </ul>
+    <p>Catatan keuangan tersimpan di browser perangkat pengguna dan tidak dikirim ke server FINTATIF. Kalau pengguna menekan Hubungkan Google, aplikasi meminta izin Google Drive drive.file dan alamat email akun Google, lalu menyimpan catatan itu ke Google Sheet di Drive milik pengguna sendiri. Dengan izin drive.file, aplikasi hanya bisa membuat dan mengubah file yang dibuatnya sendiri. FINTATIF tidak bisa membuka atau melihat isinya.</p>
+    <p><a href="privasi.html">Kebijakan Privasi</a> · <a href="panduan.pdf">Panduan Pengguna</a> · <a href="mailto:fintatif@gmail.com">fintatif@gmail.com</a></p>
+  </main>
 
   <!-- Link Google Apps Script Anda -->
   <iframe id="gas-app" src="https://script.google.com/macros/s/AKfycbydMNYy59sevsAI5pk0bTEOujEPa3Ldld16WLBxJw1ZyYQVPXQkh3PIStYXRiEhj1NQ/exec"></iframe>
