@@ -2,6 +2,8 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-W1GJd97skwKZyxOJ9vLwo2wSzEvc4/7Qe72id5Ls44M=' 'sha256-tCr51Evk42wlaus0kWgcOUTpnwBHHmgepNuOh+70VbA='; style-src 'unsafe-inline'; img-src 'self'; frame-src https://script.google.com https://accounts.google.com; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Judul Halaman -->
@@ -49,7 +51,13 @@
     // Izin hanya diteruskan ke aplikasi FINTATIF Smart Wealth (APP_ORIGIN).
     (function () {
       'use strict';
-      var APP_ORIGIN = 'https://n-pniqculxqumsxzxy5lxyjukrqvkwztfracnnyhi-0lu-script.googleusercontent.com';
+      // Halaman ini tidak boleh dibingkai situs lain. GitHub Pages tidak bisa mengirim X-Frame-Options, jadi dijaga di sini.
+      if (window.top !== window.self) {
+        document.documentElement.style.display = 'none';
+        try { window.top.location.replace(location.href); } catch (e) { /* tetap tersembunyi */ }
+        return;
+      }
+      var APP_ORIGIN ='https://n-pniqculxqumsxzxy5lxyjukrqvkwztfracnnyhi-0lu-script.googleusercontent.com';
       var CLIENT_ID = '304891749309-caju51666hma60mo014mh9aeaj4cs6no.apps.googleusercontent.com';
       var SCOPE = 'openid email https://www.googleapis.com/auth/drive.file';
       var KEY = 'fintatif_wrap_gdrive_v1';   // { email: akun FINTATIF, g: akun Google backup, t: token, x: berlaku sampai, failAt }
@@ -121,7 +129,11 @@
   </main>
 
   <!-- Link Google Apps Script Anda -->
-  <iframe id="gas-app" src="https://script.google.com/macros/s/AKfycbydMNYy59sevsAI5pk0bTEOujEPa3Ldld16WLBxJw1ZyYQVPXQkh3PIStYXRiEhj1NQ/exec"></iframe>
+  <iframe id="gas-app" title="FINTATIF Smart Wealth"></iframe>
+  <script>
+    // Aplikasi hanya dimuat kalau halaman ini tidak sedang dibingkai situs lain.
+    if (window.top === window.self) document.getElementById('gas-app').src = 'https://script.google.com/macros/s/AKfycbydMNYy59sevsAI5pk0bTEOujEPa3Ldld16WLBxJw1ZyYQVPXQkh3PIStYXRiEhj1NQ/exec';
+  </script>
 
 </body>
 </html>
